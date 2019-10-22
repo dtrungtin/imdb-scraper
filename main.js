@@ -7,13 +7,13 @@ Apify.main(async () => {
     console.log('Input:');
     console.log(input);
 
-    if (!input || !Array.isArray(input.startUrls) || input.startUrls.length === 0) {
-        throw new Error("Invalid input, it needs to contain at least one url in 'startUrls'.");
+    if (!input || !Array.isArray(input.startURLs) || input.startURLs.length === 0) {
+        throw new Error("Invalid input, it needs to contain at least one url in 'startURLs'.");
     }
 
     const requestQueue = await Apify.openRequestQueue();
 
-    for (let index = 0; index < input.startUrls; index++) {
+    for (let index = 0; index < input.startURLs; index++) {
         await requestQueue.addRequest({ url: input.startUrls[index], userData: { label: 'start' } });
     }
 
