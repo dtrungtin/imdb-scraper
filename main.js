@@ -2,12 +2,10 @@ const Apify = require('apify');
 const rp = require('request-promise');
 const cheerio = require('cheerio');
 
-const { log } = Apify.utils;
-
 Apify.main(async () => {
     const input = await Apify.getInput();
-    log('Input:');
-    log(input);
+    console.log('Input:');
+    console.log(input);
 
     if (!input || !Array.isArray(input.startUrls) || input.startUrls.length > 0) {
         throw new Error("Invalid input, it needs to contain at least one url in 'startUrls'.");
