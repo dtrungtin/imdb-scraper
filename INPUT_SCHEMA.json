@@ -23,5 +23,5 @@
             "prefill": { "useApifyProxy": true }
         }
     },
-    "required": ["url"]
+    "required": ["startURLs"]
 }
