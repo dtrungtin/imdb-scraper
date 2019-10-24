@@ -15,7 +15,7 @@ Apify.main(async () => {
 
     const requestQueue = await Apify.openRequestQueue();
 
-    for (let index = 0; index < input.startURLs; index++) {
+    for (let index = 0; index < input.startURLs.length; index++) {
         await requestQueue.addRequest({ url: input.startUrls[index], userData: { label: 'start' } });
     }
 
