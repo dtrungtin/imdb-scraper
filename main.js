@@ -39,6 +39,7 @@ Apify.main(async () => {
                 for (let index = 1; index < itemLinks.length; index++) {
                     const href = $(itemLinks[index]).attr('href');
                     if (href.includes('/title/')) {
+                        console.log(href);
                         const itemId = href.match(/\/title\/(.+)\//)[1];
                         const itemUrl = `https://www.imdb.com/title/${itemId}/parentalguide`;
                         await requestQueue.addRequest({ url: `${itemUrl}`, userData: { label: 'parentalguide', id: itemId } });
