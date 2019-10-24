@@ -36,15 +36,23 @@ Apify.main(async () => {
                 }
 
                 const itemLinks = $('.lister-list .lister-item a');
-                for (let index = 1; index < itemLinks.length; index++) {
+                for (let index = 0; index < itemLinks.length; index++) {
                     const href = $(itemLinks[index]).attr('href');
                     if (href.includes('/title/')) {
                         console.log(href);
-                        const itemId = href.match(/\/title\/(.+)\//)[1];
+                        const itemId = href.match(/\/title\/(.{9})/)[1];
                         const itemUrl = `https://www.imdb.com/title/${itemId}/parentalguide`;
+
                         await requestQueue.addRequest({ url: `${itemUrl}`, userData: { label: 'parentalguide', id: itemId } });
                     }
                 }
+            } else if (request.userData.label === 'parentalguide') {
+                const body = await rp(request.url);
+                const $ = cheerio.load(body);
+                const itemCertificates = $('#certificates').text().trim();
+                const itemUrl = `https://www.imdb.com/title/${request.userData.id}`;
+
+                await requestQueue.addRequest({ url: `${itemUrl}`, userData: { label: 'item', certificates: itemCertificates } });
             } else if (request.userData.label === 'item') {
                 const body = await rp(request.url);
                 const $ = cheerio.load(body);
@@ -71,8 +79,6 @@ Apify.main(async () => {
                     .trim();
                 const itemId = $('meta[property=pageId]').attr('content');
 
-                await requestQueue.addRequest({ url: `https://www.imdb.com/title/${itemId}/parentalguide`, userData: { label: 'certificate' } });
-
                 const extendedResult = safeEval(input.extendOutputFunction)($);
 
                 const result = {
@@ -96,13 +102,6 @@ Apify.main(async () => {
                 _.extend(result, extendedResult);
 
                 await Apify.pushData(result);
-            } else if (request.userData.label === 'parentalguide') {
-                const body = await rp(request.url);
-                const $ = cheerio.load(body);
-                const itemCertificates = $('#certificates').text().trim();
-                const itemUrl = `https://www.imdb.com/title/${request.userData.id}`;
-
-                await requestQueue.addRequest({ url: `${itemUrl}`, userData: { label: 'item', certificates: itemCertificates } });
             }
         },
 
