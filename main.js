@@ -24,7 +24,7 @@ Apify.main(async () => {
                 const body = await rp(request.url);
                 const $ = cheerio.load(body);
                 const content = $('.desc span').text().match(/of\s+(\d+[.,]?\d*[.,]?\d*)/)[1];
-                const pageCount = Math.floor(parseInt(content, 10) / 50);
+                const pageCount = Math.floor(parseInt(content, 10) / 50); // Each page has 50 items
 
                 if (request.userData.label === 'start') {
                     for (let index = 1; index < pageCount; index++) {
@@ -33,20 +33,40 @@ Apify.main(async () => {
                     }
                 }
 
-                const jobLinks = $('.lister-list .lister-item a');
-                for (let index = 1; index < jobLinks.length; index++) {
-                    const jk = 'https://www.imdb.com' + $(jobLinks[index]).attr('href');
-                    await requestQueue.addRequest({ url: `${jk}`, userData: { label: 'job', jobKey: jk } });
+                const itemLinks = $('.lister-list .lister-item a');
+                for (let index = 1; index < itemLinks.length; index++) {
+                    const itemUrl = window.location.origin + $(itemLinks[index]).attr('href');
+                    await requestQueue.addRequest({ url: `${itemUrl}`, userData: { label: 'item' } });
                 }
-            } else if (request.userData.label === 'job') {
+            } else if (request.userData.label === 'item') {
                 const body = await rp(request.url);
                 const $ = cheerio.load(body);
-                const desc = $('.credit_summary_item').text();
+                const itemTitle = $('.title_wrapper h1').text().trim();
+                const itemOriginalTitle = '';
+                const runtime = '';
+                const certificate = '';
+                const year = '';
+                const rating = '';
+                const ratingCount = '';
+                const desc = $('.summary_text').text().trim();
+                const stars = '';
+                const director = '';
+                const itemGenres = $('#titleStoryLine div h4:contains(Genres:)').parent().text()
+                    .replace('Genres:', '')
+                    .trim();
+                const itemCountry = $('#titleDetails div h4:contains(Country)').parent().text()
+                    .replace('Country:', '')
+                    .trim();
+                const itemId = $('meta[property=pageId]').attr('content');
 
                 await Apify.pushData({
                     url: request.url,
-                    id: request.userData.jobKey,
+                    id: itemId,
+                    title: itemTitle,
+                    originalTitle: itemOriginalTitle,
                     description: desc,
+                    genres: itemGenres,
+                    country: itemCountry,
                     '#debug': Apify.utils.createRequestDebugInfo(request),
                 });
             }

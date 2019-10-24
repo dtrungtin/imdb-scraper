@@ -15,6 +15,14 @@
             "minimum": 1,
             "description": "Limit of detail/product pages to be scraped"
         },
+        "extendOutputFunction": {
+            "title": "Extend output function",
+            "type": "string",
+            "nullable": true,
+            "description": "Function that takes a JQuery handle ($) as argument and returns data that will be merged with the default output",
+            "prefill": "($) => { return {} }",
+            "editor": "javascript"
+        },
         "proxyConfiguration": {
             "title": "Proxy configuration",
             "type": "object",
