@@ -37,7 +37,8 @@ Apify.main(async () => {
 
                 const itemLinks = $('.lister-list .lister-item a');
                 for (let index = 1; index < itemLinks.length; index++) {
-                    const itemUrl = window.location.origin + $(itemLinks[index]).attr('href');
+                    const href = $(itemLinks[index]).attr('href');
+                    const itemUrl = `https://www.imdb.com${href}`;
                     await requestQueue.addRequest({ url: `${itemUrl}`, userData: { label: 'item' } });
                 }
             } else if (request.userData.label === 'item') {
