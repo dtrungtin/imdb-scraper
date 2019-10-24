@@ -1,6 +1,8 @@
 const Apify = require('apify');
 const rp = require('request-promise');
 const cheerio = require('cheerio');
+const _ = require('underscore');
+const safeEval = require('safe-eval');
 
 Apify.main(async () => {
     const input = await Apify.getInput();
@@ -59,7 +61,9 @@ Apify.main(async () => {
                     .trim();
                 const itemId = $('meta[property=pageId]').attr('content');
 
-                await Apify.pushData({
+                const extendedResult = safeEval(input.extendOutputFunction)($);
+
+                const result = {
                     url: request.url,
                     id: itemId,
                     title: itemTitle,
@@ -68,7 +72,11 @@ Apify.main(async () => {
                     genres: itemGenres,
                     country: itemCountry,
                     '#debug': Apify.utils.createRequestDebugInfo(request),
-                });
+                };
+
+                _.extend(result, extendedResult);
+
+                await Apify.pushData(result);
             }
         },
 
