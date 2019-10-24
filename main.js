@@ -38,22 +38,30 @@ Apify.main(async () => {
                 const itemLinks = $('.lister-list .lister-item a');
                 for (let index = 1; index < itemLinks.length; index++) {
                     const href = $(itemLinks[index]).attr('href');
-                    const itemUrl = `https://www.imdb.com${href}`;
-                    await requestQueue.addRequest({ url: `${itemUrl}`, userData: { label: 'item' } });
+                    if (href.includes('/title/')) {
+                        const itemId = href.match(/\/title\/(.+)\//)[1];
+                        const itemUrl = `https://www.imdb.com/title/${itemId}/parentalguide`;
+                        await requestQueue.addRequest({ url: `${itemUrl}`, userData: { label: 'parentalguide', id: itemId } });
+                    }
                 }
             } else if (request.userData.label === 'item') {
                 const body = await rp(request.url);
                 const $ = cheerio.load(body);
                 const itemTitle = $('.title_wrapper h1').text().trim();
                 const itemOriginalTitle = '';
-                const runtime = '';
-                const certificate = '';
-                const year = '';
-                const rating = '';
-                const ratingCount = '';
+                const itemRuntime = $('#titleDetails div h4:contains(Runtime:)').parent().text()
+                    .replace('Runtime:', '')
+                    .trim();
+                const itemYear = itemTitle.match(/(\d+)/)[0];
+                const itemRating = $('.ratingValue').text().trim();
+                const itemRatingCount = $('.ratingValue').text().trim();
                 const desc = $('.summary_text').text().trim();
-                const stars = '';
-                const director = '';
+                const itemStars = $('.credit_summary_item h4:contains(Stars:)').parent().text()
+                    .replace('Stars:', '')
+                    .trim();
+                const itemDirector = $('.credit_summary_item h4:contains(Director:)').parent().text()
+                    .replace('Director:', '')
+                    .trim();
                 const itemGenres = $('#titleStoryLine div h4:contains(Genres:)').parent().text()
                     .replace('Genres:', '')
                     .trim();
@@ -61,6 +69,8 @@ Apify.main(async () => {
                     .replace('Country:', '')
                     .trim();
                 const itemId = $('meta[property=pageId]').attr('content');
+
+                await requestQueue.addRequest({ url: `https://www.imdb.com/title/${itemId}/parentalguide`, userData: { label: 'certificate' } });
 
                 const extendedResult = safeEval(input.extendOutputFunction)($);
 
@@ -72,12 +82,26 @@ Apify.main(async () => {
                     description: desc,
                     genres: itemGenres,
                     country: itemCountry,
+                    runtime: itemRuntime,
+                    rating: itemRating,
+                    ratingCount: itemRatingCount,
+                    director: itemDirector,
+                    stars: itemStars,
+                    year: itemYear,
+                    certificate: request.userData.certificates,
                     '#debug': Apify.utils.createRequestDebugInfo(request),
                 };
 
                 _.extend(result, extendedResult);
 
                 await Apify.pushData(result);
+            } else if (request.userData.label === 'parentalguide') {
+                const body = await rp(request.url);
+                const $ = cheerio.load(body);
+                const itemCertificates = $('#certificates').text().trim();
+                const itemUrl = `https://www.imdb.com/title/${request.userData.id}`;
+
+                await requestQueue.addRequest({ url: `${itemUrl}`, userData: { label: 'item', certificates: itemCertificates } });
             }
         },
 
