@@ -99,10 +99,12 @@ Apify.main(async () => {
 
                 await Apify.pushData(result);
                 
+                console.log(pagesOutputted);
+                console.log(input.maxItems);
                 if (++pagesOutputted >= input.maxItems) {
                     const msg = `Outputted ${pagesOutputted} pages, limit is ${input.maxItems} pages`;
                     console.log(`Shutting down the crawler: ${msg}`);
-                    this.autoscaledPool.abort();
+                    await this.autoscaledPool.abort();
                 }
             }
         },
