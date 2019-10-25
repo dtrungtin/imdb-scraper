@@ -1,6 +1,4 @@
 const Apify = require('apify');
-const rp = require('request-promise');
-const cheerio = require('cheerio');
 const _ = require('underscore');
 const safeEval = require('safe-eval');
 
@@ -19,12 +17,10 @@ Apify.main(async () => {
         await requestQueue.addRequest({ url: input.startURLs[index].url, userData: { label: 'start' } });
     }
 
-    const basicCrawler = new Apify.BasicCrawler({
+    const crawler = new Apify.CheerioCrawler({
         requestQueue,
-        handleRequestFunction: async ({ request }) => {
+        handlePageFunction: async ({ request, response, html, $ }) => {
             if (request.userData.label === 'start' || request.userData.label === 'list') {
-                const body = await rp(request.url);
-                const $ = cheerio.load(body);
                 const content = $('.desc span').text().match(/of\s+(\d+[.,]?\d*[.,]?\d*)/)[1];
                 const pageCount = Math.floor(parseInt(content, 10) / 50); // Each page has 50 items
 
@@ -46,15 +42,11 @@ Apify.main(async () => {
                     }
                 }
             } else if (request.userData.label === 'parentalguide') {
-                const body = await rp(request.url);
-                const $ = cheerio.load(body);
                 const itemCertificates = $('#certificates').text().trim();
                 const itemUrl = `https://www.imdb.com/title/${request.userData.id}`;
 
                 await requestQueue.addRequest({ url: `${itemUrl}`, userData: { label: 'item', certificates: itemCertificates } });
             } else if (request.userData.label === 'item') {
-                const body = await rp(request.url);
-                const $ = cheerio.load(body);
                 const itemTitle = $('.title_wrapper h1').text().trim();
                 const itemOriginalTitle = '';
                 const itemRuntime = $('#titleDetails div h4:contains(Runtime:)').parent().text()
@@ -114,5 +106,5 @@ Apify.main(async () => {
         maxRequestsPerCrawl: input.maxItems,
     });
 
-    await basicCrawler.run();
+    await crawler.run();
 });
