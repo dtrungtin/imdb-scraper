@@ -12,7 +12,7 @@ Apify.main(async () => {
     }
 
     const dataset = await Apify.openDataset();
-    const { itemCount } = dataset;
+    const { itemCount } = await dataset.getInfo();
 
     let pagesOutputted = itemCount;
 
