@@ -24,7 +24,7 @@ Apify.main(async () => {
 
     const crawler = new Apify.CheerioCrawler({
         requestQueue,
-        handlePageFunction: async ({ request, response, html, $ }) => {
+        handlePageFunction: async ({ request, autoscaledPool, $ }) => {
             if (request.userData.label === 'start' || request.userData.label === 'list') {
                 const content = $('.desc span').text().match(/of\s+(\d+[.,]?\d*[.,]?\d*)/)[1];
                 const pageCount = Math.floor(parseInt(content, 10) / 50); // Each page has 50 items
@@ -104,7 +104,7 @@ Apify.main(async () => {
                 if (++pagesOutputted >= input.maxItems) {
                     const msg = `Outputted ${pagesOutputted} pages, limit is ${input.maxItems} pages`;
                     console.log(`Shutting down the crawler: ${msg}`);
-                    await this.autoscaledPool.abort();
+                    autoscaledPool.abort();
                 }
             }
         },
