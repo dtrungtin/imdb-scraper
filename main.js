@@ -38,6 +38,11 @@ Apify.main(async () => {
         requestQueue,
         handlePageFunction: async ({ request, autoscaledPool, $ }) => {
             if (request.userData.label === 'start' || request.userData.label === 'list') {
+                const paginationEle = $('.desc span');
+                if (!paginationEle || paginationEle.text() === '') {
+                    return;
+                }
+
                 const content = $('.desc span').text().match(/of\s+(\d+[.,]?\d*[.,]?\d*)/)[1];
                 const pageCount = Math.floor(parseInt(content, 10) / 50); // Each page has 50 items
 
