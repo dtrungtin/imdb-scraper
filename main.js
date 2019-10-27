@@ -11,8 +11,8 @@ Apify.main(async () => {
         throw new Error("Invalid input, it needs to contain at least one url in 'startUrls'.");
     }
 
+    let extendOutputFunction;
     if (typeof input.extendOutputFunction === 'string' && input.extendOutputFunction.trim() !== '') {
-        let extendOutputFunction;
         try {
             extendOutputFunction = safeEval(input.extendOutputFunction);
         } catch (e) {
@@ -92,8 +92,6 @@ Apify.main(async () => {
                     .trim();
                 const itemId = $('meta[property=pageId]').attr('content');
 
-                const userResult = await extendOutputFunction($);
-
                 const pageResult = {
                     url: request.url,
                     id: itemId,
@@ -112,7 +110,10 @@ Apify.main(async () => {
                     '#debug': Apify.utils.createRequestDebugInfo(request),
                 };
 
-                _.extend(pageResult, userResult);
+                if (extendOutputFunction) {
+                    const userResult = await extendOutputFunction($);
+                    _.extend(pageResult, userResult);
+                }
 
                 await Apify.pushData(pageResult);
                 
