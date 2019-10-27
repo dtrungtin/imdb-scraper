@@ -74,7 +74,8 @@ Apify.main(async () => {
                 const itemRuntime = $('#titleDetails div h4:contains(Runtime:)').parent().text()
                     .replace('Runtime:', '')
                     .trim();
-                const itemYear = itemTitle.match(/(\d+)/)[0];
+                const yearMatch = itemTitle.match(/(\d+)/);
+                const itemYear = yearMatch? yearMatch[0] : '';
                 const itemRating = $('.ratingValue').text().trim();
                 const itemRatingCount = $('.ratingValue').text().trim();
                 const desc = $('.summary_text').text().trim();
