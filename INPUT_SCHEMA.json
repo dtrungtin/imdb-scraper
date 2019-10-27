@@ -3,11 +3,14 @@
     "type": "object",
     "schemaVersion": 1,
     "properties": {
-        "startURLs": {
+        "startUrls": {
             "title": "Start URLs",
             "type": "array",
             "editor": "requestListSources",
-            "description": "List of URLs that will be scraped or crawled."
+            "description": "List of URLs that will be scraped or crawled.",
+            "prefill": [
+                { "url": "https://www.imdb.com/search/title/" }
+            ]
         },
         "maxItems": {
             "title": "Max items",
@@ -31,5 +34,5 @@
             "prefill": { "useApifyProxy": true }
         }
     },
-    "required": ["startURLs"]
+    "required": ["startUrls"]
 }
