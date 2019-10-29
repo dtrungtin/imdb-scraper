@@ -18,8 +18,8 @@ Apify.main(async () => {
         } catch (e) {
             throw new Error(`'extendOutputFunction' is not valid Javascript! Error: ${e}`);
         }
-        if (typeof extendOutputFunction !== "function") {
-            throw new Error(`'extendOutputFunction' is not a function! Please fix it or use just default ouput!`);
+        if (typeof extendOutputFunction !== 'function') {
+            throw new Error('extendOutputFunction is not a function! Please fix it or use just default ouput!');
         }
     }
 
@@ -75,7 +75,7 @@ Apify.main(async () => {
                     .replace('Runtime:', '')
                     .trim();
                 const yearMatch = itemTitle.match(/(\d+)/);
-                const itemYear = yearMatch? yearMatch[0] : '';
+                const itemYear = yearMatch ? yearMatch[0] : '';
                 const itemRating = $('.ratingValue').text().trim();
                 const itemRatingCount = $('.ratingValue').text().trim();
                 const desc = $('.summary_text').text().trim();
@@ -117,7 +117,7 @@ Apify.main(async () => {
                 }
 
                 await Apify.pushData(pageResult);
-                
+
                 if (++pagesOutputted >= input.maxItems) {
                     const msg = `Outputted ${pagesOutputted} pages, limit is ${input.maxItems} pages`;
                     console.log(`Shutting down the crawler: ${msg}`);
