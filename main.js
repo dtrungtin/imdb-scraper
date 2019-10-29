@@ -49,7 +49,9 @@ Apify.main(async () => {
                 if (request.userData.label === 'start') {
                     for (let index = 1; index < pageCount; index++) {
                         const startNumber = index * 50 + 1;
-                        await requestQueue.addRequest({ url: `${request.url}&start=${startNumber}`, userData: { label: 'list' } });
+                        let startUrl = request.url;
+                        startUrl += `${startUrl.split('?')[1] ? '&' : '?'}start=${startNumber}`;
+                        await requestQueue.addRequest({ url: startUrl, userData: { label: 'list' } });
                     }
                 }
 
