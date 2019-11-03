@@ -99,7 +99,10 @@ Apify.main(async () => {
                     { forefront: true });
             } else if (request.userData.label === 'item') {
                 const itemTitle = $('.title_wrapper h1').text().trim();
-                const itemOriginalTitle = '';
+                const itemOriginalTitle = $('.title_wrapper .originalTitle').clone().children().remove()
+                    .end()
+                    .text()
+                    .trim();
                 const itemRuntime = $('#titleDetails div h4:contains(Runtime:)').parent().text()
                     .replace('Runtime:', '')
                     .split('min')[0].trim();
@@ -128,12 +131,16 @@ Apify.main(async () => {
                 const itemCountry = toArrayString($('#titleDetails div h4:contains(Country)').parent().text()
                     .replace('Country:', '')
                     .trim());
+                const itemCert = $('#titleStoryLine div h4:contains(Certificate:)').parent().text()
+                    .replace('Certificate:', '')
+                    .trim()
+                    .split('|')[0].trim();
 
                 const pageResult = {
                     title: itemTitle,
                     'original title': itemOriginalTitle,
                     runtime: itemRuntime,
-                    certificate: request.userData.certificates,
+                    certificate: (itemCert !== '') ? itemCert : request.userData.certificates,
                     year: itemYear,
                     rating: itemRating,
                     ratingcount: itemRatingCount,
