@@ -61,10 +61,10 @@ Apify.main(async () => {
                     return;
                 }
 
-                const content = $('.desc span').text().match(/of\s+(\d+[.,]?\d*[.,]?\d*)/)[1];
-                const pageCount = Math.floor(parseInt(content, 10) / 50); // Each page has 50 items
+                if (request.userData.label === 'start' && paginationEle.text().includes('of')) {
+                    const content = paginationEle.text().match(/of\s+(\d+[.,]?\d*[.,]?\d*)/)[1];
+                    const pageCount = Math.floor(parseInt(content, 10) / 50); // Each page has 50 items
 
-                if (request.userData.label === 'start') {
                     for (let index = 1; index < pageCount; index++) {
                         const startNumber = index * 50 + 1;
                         let startUrl = request.url;
