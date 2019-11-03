@@ -2,6 +2,11 @@ const Apify = require('apify');
 const _ = require('underscore');
 const safeEval = require('safe-eval');
 
+function toArrayString(str) {
+    return str.split('\n').join('').split('|').map(Function.prototype.call, String.prototype.trim)
+        .join(',');
+}
+
 Apify.main(async () => {
     const input = await Apify.getInput();
     console.log('Input:');
@@ -86,20 +91,16 @@ Apify.main(async () => {
                 const itemStars = $('.credit_summary_item h4:contains(Stars:)').parent().text()
                     .replace('Stars:', '')
                     .trim()
-                    .split(/\s*|\s*/)[0];
+                    .split('|')[0];
                 const itemDirector = $('.credit_summary_item h4:contains(Director:)').parent().text()
                     .replace('Director:', '')
                     .trim();
-                const itemGenres = $('#titleStoryLine div h4:contains(Genres:)').parent().text()
+                const itemGenres = toArrayString($('#titleStoryLine div h4:contains(Genres:)').parent().text()
                     .replace('Genres:', '')
-                    .trim()
-                    .split(/\s*|\s*/)
-                    .join(', ');
-                const itemCountry = $('#titleDetails div h4:contains(Country)').parent().text()
+                    .trim());
+                const itemCountry = toArrayString($('#titleDetails div h4:contains(Country)').parent().text()
                     .replace('Country:', '')
-                    .trim()
-                    .split(/\s*|\s*/)
-                    .join(', ');
+                    .trim());
                 const itemId = $('meta[property=pageId]').attr('content');
 
                 const pageResult = {
