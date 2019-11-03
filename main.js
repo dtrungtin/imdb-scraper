@@ -36,7 +36,20 @@ Apify.main(async () => {
     const requestQueue = await Apify.openRequestQueue();
 
     for (let index = 0; index < input.startUrls.length; index++) {
-        await requestQueue.addRequest({ url: input.startUrls[index].url, userData: { label: 'start' } });
+        const startUrl = input.startUrls[index].url;
+
+        if (startUrl.includes('https://www.imdb.com/')) {
+            const arr = startUrl.match(/https:\/\/www.imdb.com\/title\/(\w{9})/);
+            if (arr !== null) {
+                const itemId = arr[1];
+                const itemUrl = `https://www.imdb.com/title/${itemId}/parentalguide`;
+
+                await requestQueue.addRequest({ url: `${itemUrl}`, userData: { label: 'parentalguide', id: itemId } },
+                    { forefront: true });
+            } else {
+                await requestQueue.addRequest({ url: input.startUrls[index].url, userData: { label: 'start' } });
+            }
+        }
     }
 
     const crawler = new Apify.CheerioCrawler({
@@ -64,7 +77,7 @@ Apify.main(async () => {
                 for (let index = 0; index < itemLinks.length; index++) {
                     const href = $(itemLinks[index]).attr('href');
                     if (href.includes('/title/')) {
-                        const itemId = href.match(/\/title\/(.{9})/)[1];
+                        const itemId = href.match(/\/title\/(\w{9})/)[1];
                         const itemUrl = `https://www.imdb.com/title/${itemId}/parentalguide`;
 
                         await requestQueue.addRequest({ url: `${itemUrl}`, userData: { label: 'parentalguide', id: itemId } },
@@ -115,23 +128,21 @@ Apify.main(async () => {
                 const itemCountry = toArrayString($('#titleDetails div h4:contains(Country)').parent().text()
                     .replace('Country:', '')
                     .trim());
-                const itemId = $('meta[property=pageId]').attr('content');
 
                 const pageResult = {
-                    url: request.url,
-                    id: itemId,
                     title: itemTitle,
                     'original title': itemOriginalTitle,
-                    description: desc,
-                    genres: itemGenres,
-                    country: itemCountry,
                     runtime: itemRuntime,
+                    certificate: request.userData.certificates,
+                    year: itemYear,
                     rating: itemRating,
                     ratingcount: itemRatingCount,
-                    director: itemDirector,
+                    description: desc,
                     stars: itemStars,
-                    year: itemYear,
-                    certificate: request.userData.certificates,
+                    director: itemDirector,
+                    genre: itemGenres,
+                    country: itemCountry,
+                    url: request.url,
                     '#debug': Apify.utils.createRequestDebugInfo(request),
                 };
 
