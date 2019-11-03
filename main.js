@@ -66,7 +66,9 @@ Apify.main(async () => {
                     }
                 }
             } else if (request.userData.label === 'parentalguide') {
-                const itemCertificates = $('#certificates').text().trim();
+                const itemCertificates = $('#certificates').text().trim()
+                    .split('\n')
+                    .join('');
                 const itemUrl = `https://www.imdb.com/title/${request.userData.id}`;
 
                 await requestQueue.addRequest({ url: `${itemUrl}`, userData: { label: 'item', certificates: itemCertificates } });
@@ -75,37 +77,42 @@ Apify.main(async () => {
                 const itemOriginalTitle = '';
                 const itemRuntime = $('#titleDetails div h4:contains(Runtime:)').parent().text()
                     .replace('Runtime:', '')
-                    .trim();
+                    .split('min')[0].trim();
                 const yearMatch = itemTitle.match(/(\d+)/);
                 const itemYear = yearMatch ? yearMatch[0] : '';
-                const itemRating = $('.ratingValue').text().trim();
-                const itemRatingCount = $('.ratingValue').text().trim();
+                const itemRating = $('.ratingValue').text().trim().split('/')[0];
+                const itemRatingCount = $('span[itemprop=ratingCount]').text().trim();
                 const desc = $('.summary_text').text().trim();
                 const itemStars = $('.credit_summary_item h4:contains(Stars:)').parent().text()
                     .replace('Stars:', '')
-                    .trim();
+                    .trim()
+                    .split(/\s*|\s*/)[0];
                 const itemDirector = $('.credit_summary_item h4:contains(Director:)').parent().text()
                     .replace('Director:', '')
                     .trim();
                 const itemGenres = $('#titleStoryLine div h4:contains(Genres:)').parent().text()
                     .replace('Genres:', '')
-                    .trim();
+                    .trim()
+                    .split(/\s*|\s*/)
+                    .join(', ');
                 const itemCountry = $('#titleDetails div h4:contains(Country)').parent().text()
                     .replace('Country:', '')
-                    .trim();
+                    .trim()
+                    .split(/\s*|\s*/)
+                    .join(', ');
                 const itemId = $('meta[property=pageId]').attr('content');
 
                 const pageResult = {
                     url: request.url,
                     id: itemId,
                     title: itemTitle,
-                    originalTitle: itemOriginalTitle,
+                    'original title': itemOriginalTitle,
                     description: desc,
                     genres: itemGenres,
                     country: itemCountry,
                     runtime: itemRuntime,
                     rating: itemRating,
-                    ratingCount: itemRatingCount,
+                    ratingcount: itemRatingCount,
                     director: itemDirector,
                     stars: itemStars,
                     year: itemYear,
