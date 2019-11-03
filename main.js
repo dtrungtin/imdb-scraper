@@ -71,10 +71,14 @@ Apify.main(async () => {
                     }
                 }
             } else if (request.userData.label === 'parentalguide') {
-                const itemCertificates = $('#certificates .ipl-inline-list__item a').map((item) => {
-                    return item.textContent.trim();
-                }).join(', ');
+                const itemList = $('#certificates .ipl-inline-list__item a');
+                const certificates = [];
+                for (let index = 0; index < itemList.length; index++) {
+                    const $item = $(itemList[index]);
+                    certificates.push($item.text().trim());
+                }
 
+                const itemCertificates = certificates.join(', ');
                 const itemUrl = `https://www.imdb.com/title/${request.userData.id}`;
 
                 await requestQueue.addRequest({ url: `${itemUrl}`, userData: { label: 'item', certificates: itemCertificates } });
