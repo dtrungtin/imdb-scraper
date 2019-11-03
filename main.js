@@ -67,7 +67,8 @@ Apify.main(async () => {
                         const itemId = href.match(/\/title\/(.{9})/)[1];
                         const itemUrl = `https://www.imdb.com/title/${itemId}/parentalguide`;
 
-                        await requestQueue.addRequest({ url: `${itemUrl}`, userData: { label: 'parentalguide', id: itemId } }, { forefront: true });
+                        await requestQueue.addRequest({ url: `${itemUrl}`, userData: { label: 'parentalguide', id: itemId } },
+                            { forefront: true });
                     }
                 }
             } else if (request.userData.label === 'parentalguide') {
@@ -81,7 +82,8 @@ Apify.main(async () => {
                 const itemCertificates = certificates.join(', ');
                 const itemUrl = `https://www.imdb.com/title/${request.userData.id}`;
 
-                await requestQueue.addRequest({ url: `${itemUrl}`, userData: { label: 'item', certificates: itemCertificates } });
+                await requestQueue.addRequest({ url: `${itemUrl}`, userData: { label: 'item', certificates: itemCertificates } },
+                    { forefront: true });
             } else if (request.userData.label === 'item') {
                 const itemTitle = $('.title_wrapper h1').text().trim();
                 const itemOriginalTitle = '';
@@ -94,7 +96,12 @@ Apify.main(async () => {
                 const itemRatingCount = $('span[itemprop=ratingCount]').text().trim()
                     .split(',')
                     .join('');
-                const desc = $('.summary_text').text().trim();
+                const desc = $('.summary_text').clone().children().remove()
+                    .end()
+                    .text()
+                    .trim()
+                    .replace('»', '')
+                    .trim();
                 const itemStars = $('.credit_summary_item h4:contains(Stars:)').parent().text()
                     .replace('Stars:', '')
                     .trim()
