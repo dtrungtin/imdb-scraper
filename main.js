@@ -4,7 +4,7 @@ const safeEval = require('safe-eval');
 
 function toArrayString(str) {
     return str.split('\n').join('').split('|').map(Function.prototype.call, String.prototype.trim)
-        .join(',');
+        .join(', ');
 }
 
 Apify.main(async () => {
@@ -67,13 +67,14 @@ Apify.main(async () => {
                         const itemId = href.match(/\/title\/(.{9})/)[1];
                         const itemUrl = `https://www.imdb.com/title/${itemId}/parentalguide`;
 
-                        await requestQueue.addRequest({ url: `${itemUrl}`, userData: { label: 'parentalguide', id: itemId } });
+                        await requestQueue.addRequest({ url: `${itemUrl}`, userData: { label: 'parentalguide', id: itemId } }, { forefront: true });
                     }
                 }
             } else if (request.userData.label === 'parentalguide') {
-                const itemCertificates = $('#certificates').text().trim()
-                    .split('\n')
-                    .join('');
+                const itemCertificates = $('#certificates .ipl-inline-list__item a').map((item) => {
+                    return item.textContent.trim();
+                }).join(', ');
+
                 const itemUrl = `https://www.imdb.com/title/${request.userData.id}`;
 
                 await requestQueue.addRequest({ url: `${itemUrl}`, userData: { label: 'item', certificates: itemCertificates } });
@@ -86,12 +87,14 @@ Apify.main(async () => {
                 const yearMatch = itemTitle.match(/(\d+)/);
                 const itemYear = yearMatch ? yearMatch[0] : '';
                 const itemRating = $('.ratingValue').text().trim().split('/')[0];
-                const itemRatingCount = $('span[itemprop=ratingCount]').text().trim();
+                const itemRatingCount = $('span[itemprop=ratingCount]').text().trim()
+                    .split(',')
+                    .join('');
                 const desc = $('.summary_text').text().trim();
                 const itemStars = $('.credit_summary_item h4:contains(Stars:)').parent().text()
                     .replace('Stars:', '')
                     .trim()
-                    .split('|')[0];
+                    .split('|')[0].trim();
                 const itemDirector = $('.credit_summary_item h4:contains(Director:)').parent().text()
                     .replace('Director:', '')
                     .trim();
