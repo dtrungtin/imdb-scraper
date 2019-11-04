@@ -103,7 +103,7 @@ Apify.main(async () => {
                     .end()
                     .text()
                     .trim();
-                const itemRuntime = $('#titleDetails div h4:contains(Runtime:)').parent().text()
+                const itemRuntime = $('h4:contains(Runtime:)').parent().text()
                     .replace('Runtime:', '')
                     .split('min')[0].trim();
                 const yearMatch = itemTitle.match(/(\d+)/);
@@ -118,20 +118,22 @@ Apify.main(async () => {
                     .trim()
                     .replace('»', '')
                     .trim();
-                const itemStars = $('.credit_summary_item h4:contains(Stars:)').parent().text()
+                const itemStars = $('h4:contains(Star:),h4:contains(Stars:)').parent().text()
+                    .replace('Star:', '')
                     .replace('Stars:', '')
                     .trim()
                     .split('|')[0].trim();
-                const itemDirector = $('.credit_summary_item h4:contains(Director:)').parent().text()
+                const itemDirector = $('h4:contains(Director:),h4:contains(Directors:)').parent().text()
                     .replace('Director:', '')
+                    .replace('Directors:', '')
                     .trim();
-                const itemGenres = toArrayString($('#titleStoryLine div h4:contains(Genres:)').parent().text()
+                const itemGenres = toArrayString($('h4:contains(Genres:)').parent().text()
                     .replace('Genres:', '')
                     .trim());
-                const itemCountry = toArrayString($('#titleDetails div h4:contains(Country)').parent().text()
+                const itemCountry = toArrayString($('h4:contains(Country)').parent().text()
                     .replace('Country:', '')
                     .trim());
-                const itemCert = $('#titleStoryLine div h4:contains(Certificate:)').parent().text()
+                const itemCert = $('h4:contains(Certificate:)').parent().text()
                     .replace('Certificate:', '')
                     .trim()
                     .split('|')[0].trim();
